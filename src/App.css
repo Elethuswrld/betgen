@@ -1,0 +1,14 @@
+
+body {
+  background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00e676, #2979ff);
+  border-radius: 10px;
+}

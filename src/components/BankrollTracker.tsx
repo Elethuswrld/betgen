@@ -61,7 +61,7 @@ const BankrollTracker = () => {
           Current Balance: {balance.toFixed(2)}
         </Typography>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6}>
+          <Grid xs={12}>
             <TextField
               fullWidth
               type="number"
@@ -70,12 +70,12 @@ const BankrollTracker = () => {
               onChange={(e) => setAmount(e.target.value)}
             />
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid xs={6}>
             <Button fullWidth variant="contained" color="success" onClick={handleDeposit}>
               Deposit
             </Button>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid xs={6}>
             <Button fullWidth variant="contained" color="error" onClick={handleWithdraw}>
               Withdraw
             </Button>

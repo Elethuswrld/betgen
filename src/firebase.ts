@@ -1,20 +1,21 @@
 
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAI, getGenerativeModel } from "firebase/ai";
 
-// TODO: Add your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyARbyRlyvup-JI6SQbaZ6gWsv68Igg24uA",
+  authDomain: "betgen-19013055.firebaseapp.com",
+  projectId: "betgen-19013055",
+  storageBucket: "betgen-19013055.firebasestorage.app",
+  messagingSenderId: "1095930680011",
+  appId: "1:1095930680011:web:1e36c25f9cf440a670c14e"
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const ai = getAI(app);
+const model = getGenerativeModel(ai, { model: "gemini-pro" });
 
-export { db };
+export { db, model };

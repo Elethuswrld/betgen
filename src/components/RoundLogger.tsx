@@ -94,7 +94,7 @@ const RoundLogger = () => {
         </Typography>
         <form>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12}>
               <FormControl fullWidth>
                 <InputLabel>Game Name</InputLabel>
                 <Select
@@ -107,7 +107,7 @@ const RoundLogger = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 type="number"
@@ -116,7 +116,7 @@ const RoundLogger = () => {
                 onChange={(e) => setBetAmount(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 type="number"
@@ -125,7 +125,7 @@ const RoundLogger = () => {
                 onChange={(e) => setTargetMultiplier(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 type="number"
@@ -134,7 +134,7 @@ const RoundLogger = () => {
                 onChange={(e) => setActualCashout(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 label="Notes"
@@ -144,7 +144,7 @@ const RoundLogger = () => {
                 onChange={(e) => setNotes(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
+            <Grid xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant="h6" sx={{ mr: 2 }}>
                 Profit/Loss:
               </Typography>
@@ -153,7 +153,7 @@ const RoundLogger = () => {
               </Typography>
               {profit >= 0 ? <TrendingUpIcon color="success" sx={{ ml: 1 }} /> : <TrendingDownIcon color="error" sx={{ ml: 1 }} />}
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12}>
               <Button
                 variant="contained"
                 color="primary"
@@ -164,7 +164,7 @@ const RoundLogger = () => {
                 Log Win
               </Button>
             </Grid>
-             <Grid item xs={12} sm={6}>
+             <Grid xs={12}>
               <Button
                 variant="outlined"
                 color="error"

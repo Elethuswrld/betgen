@@ -1,11 +1,15 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Auth from './components/Auth';
-import './App.css';
+import App from './App';
+import { ThemeProvider } from './theme/ThemeProvider';
+import CssBaseline from '@mui/material/CssBaseline';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Auth />
-  </React.StrictMode>,
+    <ThemeProvider>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
+  </React.StrictMode>
 );

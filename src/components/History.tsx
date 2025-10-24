@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, TablePagination } from '@mui/material';
+import { db, auth } from '../firebase';
+import { collection, onSnapshot, query, where, orderBy as orderByFb } from 'firebase/firestore';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, TablePagination, Typography } from '@mui/material';
 import { format } from 'date-fns';
 
 const History = () => {
@@ -11,15 +11,24 @@ const History = () => {
   const [order, setOrder] = useState('desc');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const user = auth.currentUser;
 
   useEffect(() => {
-    const q = query(collection(db, "rounds"), orderBy(orderBy, order));
+    if (!user) return;
+
+    const q = query(
+      collection(db, "rounds"),
+      where("userId", "==", user.uid),
+      orderByFb(orderBy, order)
+    );
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const roundsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setRounds(roundsData);
     });
+
     return () => unsubscribe();
-  }, [orderBy, order]);
+  }, [user, orderBy, order]);
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -40,46 +49,11 @@ const History = () => {
 
   return (
     <Paper>
+      <Typography variant="h6" sx={{ p: 2 }}>Round History</Typography>
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'gameName'}
-                  direction={orderBy === 'gameName' ? order : 'asc'}
-                  onClick={() => handleSort('gameName')}
-                >
-                  Game
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'betAmount'}
-                  direction={orderBy === 'betAmount' ? order : 'asc'}
-                  onClick={() => handleSort('betAmount')}
-                >
-                  Bet
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'actualCashout'}
-                  direction={orderBy === 'actualCashout' ? order : 'asc'}
-                  onClick={() => handleSort('actualCashout')}
-                >
-                  Cashout
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'profit'}
-                  direction={orderBy === 'profit' ? order : 'asc'}
-                  onClick={() => handleSort('profit')}
-                >
-                  Profit
-                </TableSortLabel>
-              </TableCell>
               <TableCell>
                 <TableSortLabel
                   active={orderBy === 'timestamp'}
@@ -89,20 +63,54 @@ const History = () => {
                   Date
                 </TableSortLabel>
               </TableCell>
-              <TableCell>Notes</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'gameName'}
+                  direction={orderBy === 'gameName' ? order : 'asc'}
+                  onClick={() => handleSort('gameName')}
+                >
+                  Game
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right">
+                 <TableSortLabel
+                  active={orderBy === 'betAmount'}
+                  direction={orderBy === 'betAmount' ? order : 'asc'}
+                  onClick={() => handleSort('betAmount')}
+                >
+                  Bet
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right">
+                 <TableSortLabel
+                  active={orderBy === 'actualCashout'}
+                  direction={orderBy === 'actualCashout' ? order : 'asc'}
+                  onClick={() => handleSort('actualCashout')}
+                >
+                  Cashout
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right">
+                 <TableSortLabel
+                  active={orderBy === 'profit'}
+                  direction={orderBy === 'profit' ? order : 'asc'}
+                  onClick={() => handleSort('profit')}
+                >
+                  Profit
+                </TableSortLabel>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {sortedRounds.map((round) => (
               <TableRow key={round.id}>
+                <TableCell>{format(round.timestamp.toDate(), 'PPpp')}</TableCell>
                 <TableCell>{round.gameName}</TableCell>
-                <TableCell>${round.betAmount.toFixed(2)}</TableCell>
-                <TableCell>{round.actualCashout.toFixed(2)}x</TableCell>
-                <TableCell style={{ color: round.profit >= 0 ? 'green' : 'red' }}>
+                <TableCell align="right">{round.betAmount.toFixed(2)}</TableCell>
+                <TableCell align="right">{round.actualCashout.toFixed(2)}x</TableCell>
+                <TableCell align="right" style={{ color: round.profit >= 0 ? 'green' : 'red' }}>
                   {round.profit.toFixed(2)}
                 </TableCell>
-                <TableCell>{format(round.timestamp.toDate(), 'Pp')}</TableCell>
-                <TableCell>{round.notes}</TableCell>
               </TableRow>
             ))}
           </TableBody>

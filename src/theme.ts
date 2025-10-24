@@ -1,75 +1,63 @@
 
 import { createTheme } from '@mui/material/styles';
-import { deepPurple, green } from '@mui/material/colors';
 
-// Create a theme instance.
 const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: green[600],
+      main: '#00ff99', // Electric Neon Green
     },
     secondary: {
-      main: deepPurple[500],
+      main: '#00ccff', // Electric Neon Blue
     },
     background: {
-      default: '#1a202c', // A deep blue-gray
-      paper: '#2d3748', // A slightly lighter blue-gray for cards
+      default: '#0d1117', // bg-gray-950
+      paper: '#161b22',   // A slightly lighter dark for cards
     },
     text: {
-      primary: '#e2e8f0', // Light gray for primary text
-      secondary: '#a0aec0', // A softer gray for secondary text
+      primary: '#c9d1d9', // text-gray-100
+      secondary: '#8b949e',
+    },
+    success: {
+        main: '#2e7d32',
+    },
+    error: {
+      main: '#d32f2f', // Soft Red for losses
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontSize: '3rem',
-      fontWeight: 700,
-      letterSpacing: '0.05em',
-    },
-    h2: {
-      fontSize: '2.125rem',
-      fontWeight: 700,
-    },
-    h3: {
-        fontSize: '1.5rem',
-        fontWeight: 600,
-    },
-    body1: {
-      fontSize: '1rem',
-    },
-    button: {
-      textTransform: 'none', // Keep button text case as is
-      fontWeight: 600,
-    },
+    fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
+    h1: { fontFamily: '"Orbitron", "Helvetica", "Arial", sans-serif', fontWeight: 700 },
+    h2: { fontFamily: '"Orbitron", "Helvetica", "Arial", sans-serif', fontWeight: 700 },
+    h3: { fontFamily: '"Orbitron", "Helvetica", "Arial", sans-serif', fontWeight: 700 },
+    h4: { fontFamily: '"Orbitron", "Helvetica", "Arial", sans-serif', fontWeight: 700 },
+    h5: { fontFamily: '"Orbitron", "Helvetica", "Arial", sans-serif', fontWeight: 700 },
+    h6: { fontFamily: '"Orbitron", "Helvetica", "Arial", sans-serif', fontWeight: 700 },
   },
   components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          border: '1px solid #30363d',
+          borderRadius: '12px',
+          boxShadow: '0 8px 24px rgba(0, 255, 153, 0.2)', // Glowing effect
+        },
+      },
+    },
     MuiButton: {
-        styleOverrides: {
-            root: {
-                borderRadius: 8,
-            }
-        }
+      styleOverrides: {
+        contained: {
+          background: 'linear-gradient(45deg, #00ff99 30%, #00ccff 90%)',
+          color: '#0d1117',
+          fontWeight: 'bold',
+          boxShadow: '0 0 15px rgba(0, 255, 153, 0.5)',
+          '&:hover': {
+            boxShadow: '0 0 25px rgba(0, 255, 153, 0.8)',
+          },
+        },
+      },
     },
-    MuiTextField: {
-        styleOverrides: {
-            root: {
-                '& .MuiOutlinedInput-root': {
-                    borderRadius: 8,
-                }
-            }
-        }
-    },
-    MuiCard: {
-        styleOverrides: {
-            root: {
-                borderRadius: 12,
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            }
-        }
-    }
-  }
+  },
 });
 
 export default theme;

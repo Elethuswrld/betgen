@@ -34,7 +34,7 @@ const PerformanceDashboard = () => {
           Performance Dashboard
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h6">Total Profit</Typography>
               <Typography variant="h4" color={totalProfit >= 0 ? 'success.main' : 'error.main'}>
@@ -42,19 +42,19 @@ const PerformanceDashboard = () => {
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h6">Win Rate</Typography>
               <Typography variant="h4">{winRate.toFixed(2)}%</Typography>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h6">Total Rounds</Typography>
               <Typography variant="h4">{totalRounds}</Typography>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="h6">Avg. Multiplier</Typography>
               <Typography variant="h4">{averageMultiplier.toFixed(2)}x</Typography>

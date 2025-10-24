@@ -1,47 +1,97 @@
-
-# BetGen Project Blueprint
+# BetGen Dashboard Blueprint
 
 ## Overview
 
-BetGen is a sophisticated tool for tracking, analyzing, and improving betting discipline for games like SkyCash and RedRocket. It is not a betting platform, but a tool to help users make smarter, more disciplined betting decisions.
+**“Gamble like a trader. Measure everything. Improve deliberately.”**
+
+BetGen is a self-awareness and strategy enhancement tool for disciplined gamblers. It helps you:
+
+- Track every bet like a trade 🧾
+- Quantify your emotions, decisions, and outcomes 📈
+- Identify your edge and eliminate impulsive habits 🧠
+- Develop data-backed strategies instead of emotional betting 💪
+
+**System Philosophy in One Line:** “BetGen = Trade Journal + Psychology Coach + Risk Manager for Gamblers.”
+
+## Core System Components (Behavior-First Architecture)
+
+### 1. Round Logger (Trade Journal)
+Treat every bet like a trade entry:
+- **🎮 Game Name**
+- **💸 Bet Amount**
+- **🎯 Target Multiplier**
+- **🚀 Actual Cashout / “Flew Away” button**
+- **🧠 Emotion Tag** (e.g., Calm, Excited, Fearful, Tilted)
+- **📝 Reason for Entry** (Why did I take this?)
+
+Then auto-calculate:
+- **Profit/Loss**
+- **Risk-to-Reward ratio**
+- **Expected value**
+
+### 2. Bankroll Tracker (Your Trading Account)
+Displays:
+- **Starting balance**
+- **Current balance**
+- **Total profit/loss**
+- **Equity curve** (like a trader’s balance over time)
+- **Daily performance summary**
+
+Goal: Treat bankroll like capital management, not gambling funds.
+
+### 3. Performance Dashboard (Your Analyst)
+Analytics that give you feedback like a trading coach:
+- **Win rate**
+- **Average cashout multiplier**
+- **Average risk/reward**
+- **Longest losing streak**
+- **Peak equity vs drawdown**
+- **Emotional pattern** (e.g. “You lose more when emotional = Fearful”)
+
+### 4. Mindset Zone (Your Trading Psychology Journal)
+Space for:
+- **Daily journal entry** (“How did I feel today?”)
+- **Motivation notes**
+- **Daily stop-loss + profit target**
+- **Reflections on discipline**
 
 ## Implemented Features
 
-### Phase 1: Core MVP & MUI Integration
+### UI Glow-Up
+- **Custom MUI Theme:** Dark, neon-accented theme for a high-tech feel.
+- **Custom Fonts:** "Inter" and "Orbitron" for unique typography.
+- **Glowing Buttons:** Interactive buttons with a glow effect.
 
-*   **`RoundLogger.tsx`**: A form to log individual betting rounds with fields for game name, bet amount, target multiplier, and actual cashout multiplier. It calculates and displays profit/loss in real-time and includes a "Flew Away / Loss" button for quick loss logging.
-*   **`BankrollTracker.tsx`**: A dashboard to display key bankroll metrics like starting balance, current balance, total profit/loss, and growth rate.
-*   **`PerformanceDashboard.tsx`**: A visual summary of key performance indicators such as win rate, average cashout, best/worst streaks, and total games played.
-*   **`MindsetZone.tsx`**: A "Discipline Board" to set daily profit targets and stop-loss limits, along with a section for motivational notes.
-*   **Firebase Integration**: The application is connected to a Firestore database to persist and retrieve betting data in real-time.
-*   **MUI Integration**: The project uses Material-UI for a consistent and modern design.
-*   **Custom Theming**: A custom dark theme has been created to provide a unique and professional look and feel.
+### Landing & Navigation
+- **Animated Landing Screen:** An engaging, animated entry point.
+- **Routing:** `react-router-dom` for seamless navigation between pages.
+- **Sidebar Navigation:** For easy access to all sections of the app.
 
-### Phase 2: Historical Data and Enhanced Navigation
+### Dashboard (Live Data)
+- **Real-time KPI Cards:** Current Balance, Profit/Loss, Win Rate, Best Streak.
+- **Real-time Bankroll Chart:** Visualizes bankroll changes over time.
+- **Round Logger:** Logs game data to Firestore, including game name, bet amount, target multiplier, actual cashout, emotion, and reason for entry. It also calculates Profit/Loss, Risk-to-Reward Ratio, and Expected Value.
 
-*   **`History.tsx` Component**: A detailed, sortable, and paginated table view of all logged betting rounds, allowing users to review their complete betting history.
-*   **Routing**: `react-router-dom` is implemented to create separate pages for the main dashboard and the historical data view.
-*   **Navigation Bar**: The `AppBar` now includes navigation links to easily switch between the dashboard and history pages.
-*   **`Dashboard.tsx` Component**: The main dashboard content has been encapsulated in its own component for better code organization.
+### Performance Dashboard
+- **Fetches Historical Data:** Connects to the "rounds" collection in Firestore.
+- **Calculates Key Metrics:** Computes and displays Overall Win Rate, Average Win Amount, and Average Loss Amount.
+- **Visualizes Performance:** Includes interactive bar charts to analyze performance by emotion and by game, showing win rates and total profit for each category.
 
-### Phase 3: Data Visualization
+### Mindset Zone
+- **Pre-Session Warm-up:** A form to record mental state, session goals, and stop-loss before starting to play.
+- **Post-Session Cool-down:** A form to reflect on the session's outcome, discipline, and key lessons learned.
+- **Firestore Integration:** Saves all warm-up and cool-down data to a new "sessions" collection in Firestore.
 
-*   **Charting Library**: The `recharts` library has been integrated to create interactive charts.
-*   **`BankrollChart.tsx`**: A line chart that visualizes the user's bankroll over time, providing a clear view of financial progress.
-*   **`ProfitLossChart.tsx`**: A bar chart that displays the profit or loss for each betting round, with color-coded bars for immediate visual feedback.
-*   **Dashboard Integration**: The new charts have been added to the main dashboard, offering a comprehensive and visually rich overview of betting performance.
+### Settings
+- **Bankroll Configuration:** Allows the user to set their starting bankroll.
+- **Firestore Integration:** Saves the starting bankroll to a "settings" collection in Firestore, which is then used as the baseline for all profit/loss calculations.
 
-### Phase 4: User Authentication
+## Next Evolution Steps
 
-*   **`Login.tsx`**: A dedicated login page with a "Sign in with Google" button.
-*   **`Auth.tsx`**: An authentication wrapper that directs users to the login page if they are not signed in, and to the main application if they are.
-*   **Firebase Authentication**: Integrated Firebase Authentication to provide a secure and easy-to-use login system.
-*   **`react-firebase-hooks`**: Utilized this library to easily manage and listen to the user's authentication state.
-
-## Current Plan
-
-### Phase 5: Advanced Analytics & Data Security
-
-*   **Data Security Rules**: Implement Firestore security rules to ensure that users can only access their own data.
-*   **Advanced Filtering**: Add advanced filtering options to the `History` page, allowing users to filter by game, date range, and other criteria.
-*   **Personalized Insights**: Develop a system to provide personalized insights and suggestions based on the user's betting patterns.
+| Phase | Feature | Purpose |
+| :--- | :--- | :--- |
+| 5️⃣ | **Behavior Insights Engine** | AI-driven performance + psychology feedback |
+| 6️⃣ | **Session Analytics** | Compare sessions by mindset & game |
+| 7️⃣ | **Smart Reinvestment Tool**| Calculate safe next bet size using bankroll % |
+| 8️⃣ | **Community Mode** | Private stat-sharing & challenges |
+| 9️⃣ | **PWA / Mobile Mode** | Gamblers can log rounds anywhere |

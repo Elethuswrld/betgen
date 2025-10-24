@@ -9,21 +9,21 @@ import BankrollTracker from './BankrollTracker';
 const Dashboard = () => {
   return (
     <Grid container spacing={3} sx={{ p: 3 }}>
-      <Grid item xs={12}>
+      <Grid xs={12}>
         <Typography variant="h4" component="h1" gutterBottom>
           Betting Dashboard
         </Typography>
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid xs={12}>
         <PerformanceDashboard />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid xs={12}>
         <BankrollTracker />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid xs={12}>
         <RoundLogger />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid xs={12}>
         <History />
       </Grid>
     </Grid>
