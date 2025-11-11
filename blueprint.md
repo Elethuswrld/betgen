@@ -1,97 +1,53 @@
-# BetGen Dashboard Blueprint
 
-## Overview
+# BetGen - AI-Powered Crash Game Journal
 
-**“Gamble like a trader. Measure everything. Improve deliberately.”**
+## 1. Overview
 
-BetGen is a self-awareness and strategy enhancement tool for disciplined gamblers. It helps you:
+BetGen is a sophisticated, AI-driven web application designed to help users track, analyze, and improve their performance in online crash games. By leveraging real-time data analysis, behavioral pattern detection, and personalized AI coaching, BetGen provides users with the tools they need to make smarter decisions, manage their bankroll effectively, and cultivate a winning mindset.
 
-- Track every bet like a trade 🧾
-- Quantify your emotions, decisions, and outcomes 📈
-- Identify your edge and eliminate impulsive habits 🧠
-- Develop data-backed strategies instead of emotional betting 💪
+### Key Features:
+- **Real-time Game Logging:** Instantly log crash game results, including bet amount, cash-out multiplier, and crash point.
+- **Performance Dashboard:** Visualize your performance with key metrics like win rate, profit/loss, and streaks.
+- **AI-Powered Analysis:** An advanced AI strategy engine analyzes your data to provide personalized insights and identify behavioral patterns.
+- **Emotional Intelligence:** The AI can detect emotional trading and provide targeted advice to help you stay disciplined.
+- **Mindset Journal:** Track your emotional and mental state before and after each session to identify patterns and make adjustments.
+- **Serverless Cloud Functions:** Background analysis is offloaded to the cloud, ensuring the app remains fast and responsive.
+- **Modern, Responsive UI:** A sleek, intuitive interface built with React and Material-UI, designed for both desktop and mobile devices.
 
-**System Philosophy in One Line:** “BetGen = Trade Journal + Psychology Coach + Risk Manager for Gamblers.”
+## 2. Project Documentation
 
-## Core System Components (Behavior-First Architecture)
+### Technologies Used:
+- **Frontend:** React, TypeScript, Material-UI
+- **Backend:** Firebase (Firestore, Authentication, Cloud Functions)
+- **Styling:** Tailwind CSS, CSS-in-JS
+- **Deployment:** Firebase Hosting
 
-### 1. Round Logger (Trade Journal)
-Treat every bet like a trade entry:
-- **🎮 Game Name**
-- **💸 Bet Amount**
-- **🎯 Target Multiplier**
-- **🚀 Actual Cashout / “Flew Away” button**
-- **🧠 Emotion Tag** (e.g., Calm, Excited, Fearful, Tilted)
-- **📝 Reason for Entry** (Why did I take this?)
+### Project Structure:
+- `src/components`: Reusable React components.
+- `src/pages`: Top-level page components for each route.
+- `src/services`: AI strategy engine and other services.
+- `src/firebase`: Firebase configuration and initialization.
+- `functions`: Serverless Cloud Functions for background analysis.
 
-Then auto-calculate:
-- **Profit/Loss**
-- **Risk-to-Reward ratio**
-- **Expected value**
+### Core Components:
+- `App.tsx`: The main application component, responsible for routing and state management.
+- `CrashGameLogger.tsx`: A form for logging new crash game results.
+- `CrashGameHistory.tsx`: A table displaying the user's game history.
+- `PerformanceDashboard.tsx`: A dashboard with key performance metrics.
+- `AiStrategyPanel.tsx`: A visually rich component that provides a high-level overview of the AI's analysis.
+- `MindsetZone.tsx`: A form for logging mindset journal entries.
+- `MindsetHistoryPage.tsx`: A page displaying the user's mindset journal history.
+- `UserProfilePage.tsx`: A page for managing the user's profile.
+- `SideNav.tsx`: A consistent navigation experience across all pages.
 
-### 2. Bankroll Tracker (Your Trading Account)
-Displays:
-- **Starting balance**
-- **Current balance**
-- **Total profit/loss**
-- **Equity curve** (like a trader’s balance over time)
-- **Daily performance summary**
+## 3. Current Task: Finalizing the Application
 
-Goal: Treat bankroll like capital management, not gambling funds.
+In this final phase of development, I have focused on polishing the user experience and adding a few key features to complete the application.
 
-### 3. Performance Dashboard (Your Analyst)
-Analytics that give you feedback like a trading coach:
-- **Win rate**
-- **Average cashout multiplier**
-- **Average risk/reward**
-- **Longest losing streak**
-- **Peak equity vs drawdown**
-- **Emotional pattern** (e.g. “You lose more when emotional = Fearful”)
-
-### 4. Mindset Zone (Your Trading Psychology Journal)
-Space for:
-- **Daily journal entry** (“How did I feel today?”)
-- **Motivation notes**
-- **Daily stop-loss + profit target**
-- **Reflections on discipline**
-
-## Implemented Features
-
-### UI Glow-Up
-- **Custom MUI Theme:** Dark, neon-accented theme for a high-tech feel.
-- **Custom Fonts:** "Inter" and "Orbitron" for unique typography.
-- **Glowing Buttons:** Interactive buttons with a glow effect.
-
-### Landing & Navigation
-- **Animated Landing Screen:** An engaging, animated entry point.
-- **Routing:** `react-router-dom` for seamless navigation between pages.
-- **Sidebar Navigation:** For easy access to all sections of the app.
-
-### Dashboard (Live Data)
-- **Real-time KPI Cards:** Current Balance, Profit/Loss, Win Rate, Best Streak.
-- **Real-time Bankroll Chart:** Visualizes bankroll changes over time.
-- **Round Logger:** Logs game data to Firestore, including game name, bet amount, target multiplier, actual cashout, emotion, and reason for entry. It also calculates Profit/Loss, Risk-to-Reward Ratio, and Expected Value.
-
-### Performance Dashboard
-- **Fetches Historical Data:** Connects to the "rounds" collection in Firestore.
-- **Calculates Key Metrics:** Computes and displays Overall Win Rate, Average Win Amount, and Average Loss Amount.
-- **Visualizes Performance:** Includes interactive bar charts to analyze performance by emotion and by game, showing win rates and total profit for each category.
-
-### Mindset Zone
-- **Pre-Session Warm-up:** A form to record mental state, session goals, and stop-loss before starting to play.
-- **Post-Session Cool-down:** A form to reflect on the session's outcome, discipline, and key lessons learned.
-- **Firestore Integration:** Saves all warm-up and cool-down data to a new "sessions" collection in Firestore.
-
-### Settings
-- **Bankroll Configuration:** Allows the user to set their starting bankroll.
-- **Firestore Integration:** Saves the starting bankroll to a "settings" collection in Firestore, which is then used as the baseline for all profit/loss calculations.
-
-## Next Evolution Steps
-
-| Phase | Feature | Purpose |
-| :--- | :--- | :--- |
-| 5️⃣ | **Behavior Insights Engine** | AI-driven performance + psychology feedback |
-| 6️⃣ | **Session Analytics** | Compare sessions by mindset & game |
-| 7️⃣ | **Smart Reinvestment Tool**| Calculate safe next bet size using bankroll % |
-| 8️⃣ | **Community Mode** | Private stat-sharing & challenges |
-| 9️⃣ | **PWA / Mobile Mode** | Gamblers can log rounds anywhere |
+### Key Improvements:
+- **AI Strategy Panel:** I have created a new, visually rich `AiStrategyPanel.tsx` component to provide a high-level overview of the AI's analysis. This component is now prominently displayed on the main dashboard.
+- **Serverless Cloud Functions:** I have created a new Cloud Function in `functions/src/aiAnalysis.ts` that automatically analyzes performance data in the background. This ensures the app remains fast and responsive while the AI is always working to provide the most up-to-date insights.
+- **Emotional Intelligence:** I have integrated Emotional Intelligence into the AI by adding a new `emotionalBiasScore` field to the `MindsetZone` component. The AI can now detect when the user is trading emotionally and provide warnings and suggestions to help them refocus.
+- **User Profile Page:** I have created a new `UserProfilePage.tsx` that displays the user's starting balance, current balance, total profit/loss, a new "Risk Profile" setting, and a new "Goals" section. I have also updated the page with a new, more modern design.
+- **Mindset History Page:** I have created a new `MindsetHistoryPage.tsx` that will provide a complete history of the user's mindset journal entries. This will allow the user to track their emotional and mental state over time, identify patterns, and make adjustments to their trading strategy.
+- **Side Navigation:** I have created a new `SideNav.tsx` that provides a consistent navigation experience across all pages. This makes it easier for the user to switch between the dashboard, mindset history, and profile pages.

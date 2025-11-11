@@ -1,22 +1,8 @@
 
-import { createContext, useState, useMemo, useContext, ReactNode, useEffect } from 'react';
+import { useState, useMemo, ReactNode, useEffect, useCallback } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { lightTheme, darkTheme } from './themes';
-
-interface ThemeContextType {
-  toggleTheme: () => void;
-  isDarkMode: boolean;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
+import { ThemeContext } from './ThemeContext';
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -32,9 +18,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     localStorage.setItem('theme', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setIsDarkMode(prevMode => !prevMode);
-  };
+  }, []);
 
   const theme = useMemo(() => (isDarkMode ? darkTheme : lightTheme), [isDarkMode]);
 

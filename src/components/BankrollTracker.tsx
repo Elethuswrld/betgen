@@ -1,88 +1,70 @@
 
-import React, { useState, useEffect } from 'react';
-import { db, auth } from '../firebase';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { Card, CardContent, Typography, TextField, Button, Grid, Box, CircularProgress } from '@mui/material';
+import React from 'react';
+import { Paper, Typography, Box, CircularProgress, Tooltip } from '@mui/material';
+import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
 
-const BankrollTracker = () => {
-  const [balance, setBalance] = useState(0);
-  const [amount, setAmount] = useState('');
-  const [loading, setLoading] = useState(true);
-  const user = auth.currentUser;
+interface UserProfile {
+  startingBalance: number;
+  currentBalance: number;
+  totalProfitLoss: number;
+  riskProfile: string;
+  goals: string;
+}
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (!user) return;
-      const docRef = doc(db, 'bankrolls', user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setBalance(docSnap.data().balance);
-      } else {
-        await setDoc(docRef, { balance: 0 });
-      }
-      setLoading(false);
-    };
-    fetchBalance();
-  }, [user]);
+interface BankrollTrackerProps {
+  profile: UserProfile | null;
+}
 
-  const updateBalance = async (newBalance: number) => {
-    if (!user) return;
-    const docRef = doc(db, 'bankrolls', user.uid);
-    await updateDoc(docRef, { balance: newBalance });
-    setBalance(newBalance);
-    setAmount('');
-  };
-
-  const handleDeposit = () => {
-    const depositAmount = parseFloat(amount);
-    if (!isNaN(depositAmount) && depositAmount > 0) {
-      updateBalance(balance + depositAmount);
-    }
-  };
-
-  const handleWithdraw = () => {
-    const withdrawAmount = parseFloat(amount);
-    if (!isNaN(withdrawAmount) && withdrawAmount > 0 && balance >= withdrawAmount) {
-      updateBalance(balance - withdrawAmount);
-    }
-  };
-
-  if (loading) {
-    return <CircularProgress />;
+const BankrollTracker: React.FC<BankrollTrackerProps> = ({ profile }) => {
+  if (!profile) {
+    return (
+        <Paper elevation={3} sx={{ p: 3, bgcolor: '#2a2a2a', color: 'white', textAlign: 'center', borderRadius: '16px' }}>
+            <CircularProgress color="secondary" />
+            <Typography sx={{ mt: 2 }}>Loading Bankroll...</Typography>
+        </Paper>
+    );
   }
 
+  const { currentBalance, totalProfitLoss, startingBalance } = profile;
+  const isProfit = totalProfitLoss >= 0;
+  const percentageChange = startingBalance > 0 ? (totalProfitLoss / startingBalance) * 100 : 0;
+
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h5" component="div" sx={{ mb: 2 }}>
-          Bankroll Tracker
+    <Paper 
+        elevation={3} 
+        sx={{ 
+            p: 3, 
+            mb: 4, 
+            bgcolor: '#2c1a3e', 
+            color: 'white',
+            borderRadius: '16px',
+            border: '1px solid #9c27b0',
+            boxShadow: '0 0 20px rgba(156, 39, 176, 0.5)',
+        }}
+    >
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>Bankroll</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: 2 }}>
+        <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
+          ${currentBalance.toFixed(2)}
         </Typography>
-        <Typography variant="h4" sx={{ mb: 2, textAlign: 'center' }}>
-          Current Balance: {balance.toFixed(2)}
+        <Tooltip title={`Since starting balance of $${startingBalance}`}>
+            <Box sx={{ display: 'flex', alignItems: 'center', color: isProfit ? '#4caf50' : '#f44336' }}>
+            {isProfit ? <ArrowUpward fontSize="large"/> : <ArrowDownward fontSize="large"/>}
+            <Typography variant="h5" component="p" sx={{ ml: 1, fontWeight: 'bold' }}>
+                {percentageChange.toFixed(2)}%
+            </Typography>
+            </Box>
+        </Tooltip>
+      </Box>
+      <Box sx={{ textAlign: 'right' }}>
+        <Typography variant="body1" color={isProfit ? '#4caf50' : '#f44336'} sx={{ fontWeight: '500' }}>
+            Total P/L: ${totalProfitLoss.toFixed(2)}
         </Typography>
-        <Grid container spacing={2} alignItems="center">
-          <Grid xs={12}>
-            <TextField
-              fullWidth
-              type="number"
-              label="Amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </Grid>
-          <Grid xs={6}>
-            <Button fullWidth variant="contained" color="success" onClick={handleDeposit}>
-              Deposit
-            </Button>
-          </Grid>
-          <Grid xs={6}>
-            <Button fullWidth variant="contained" color="error" onClick={handleWithdraw}>
-              Withdraw
-            </Button>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
+        <Typography variant="body2" color="gray">
+            Starting Balance: ${startingBalance.toFixed(2)}
+        </Typography>
+      </Box>
+    </Paper>
   );
 };
 

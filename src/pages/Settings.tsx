@@ -3,68 +3,53 @@ import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useAuth } from "../hooks/useAuth";
 
 const Settings = () => {
+  const { user } = useAuth();
   const [startingBankroll, setStartingBankroll] = useState<number>(0);
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const docRef = doc(db, "settings", "user_settings");
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setStartingBankroll(docSnap.data().startingBankroll);
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setStartingBankroll(docSnap.data().startingBankroll || 0);
+        }
       }
     };
     fetchSettings();
-  }, []);
+  }, [user]);
 
   const handleSave = async () => {
-    try {
-      const docRef = doc(db, "settings", "user_settings");
-      await setDoc(docRef, { startingBankroll });
-      alert("Settings saved successfully!");
-    } catch (error) {
-      console.error("Error saving settings: ", error);
-      alert("Error saving settings.");
+    if (user) {
+        try {
+          const docRef = doc(db, "users", user.uid);
+          await setDoc(docRef, { startingBankroll }, { merge: true });
+          alert("Settings saved successfully!");
+        } catch (error) {
+          console.error("Error saving settings: ", error);
+          alert("Error saving settings.");
+        }
     }
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" fontWeight="700" color="primary.main" gutterBottom>
-        Settings ⚙️
-      </Typography>
-      <Paper
-        elevation={4}
-        sx={{
-          p: 3,
-          borderRadius: 3,
-          border: "1px solid #333",
-          mt: 4,
-          maxWidth: 400,
-        }}
-      >
-        <Typography variant="h6" gutterBottom>
-          Bankroll Configuration
-        </Typography>
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="h6">Settings</Typography>
+      <Box sx={{ mt: 2 }}>
         <TextField
-          fullWidth
-          variant="outlined"
-          label="Starting Bankroll (R)"
+          label="Starting Bankroll"
           type="number"
           value={startingBankroll}
           onChange={(e) => setStartingBankroll(Number(e.target.value))}
-          sx={{ my: 2 }}
         />
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          sx={{ bgcolor: "primary.main", color: "#000", "&:hover": { bgcolor: "primary.dark" } }}
-        >
-          Save
-        </Button>
-      </Paper>
-    </Box>
+      </Box>
+      <Button sx={{ mt: 2 }} variant="contained" onClick={handleSave}>
+        Save
+      </Button>
+    </Paper>
   );
 };
 

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
-import { collection, onSnapshot, query, where, orderBy as orderByFb } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy as orderByFb } from 'firebase/firestore';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, TablePagination, Typography } from '@mui/material';
 import { format } from 'date-fns';
 
@@ -16,18 +16,18 @@ const History = () => {
   useEffect(() => {
     if (!user) return;
 
-    const q = query(
-      collection(db, "rounds"),
-      where("userId", "==", user.uid),
-      orderByFb(orderBy, order)
-    );
+    const fetchData = async () => {
+        const q = query(
+        collection(db, "users", user.uid, "rounds"),
+        orderByFb(orderBy, order)
+        );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const roundsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setRounds(roundsData);
-    });
+        const querySnapshot = await getDocs(q);
+        const roundsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setRounds(roundsData);
+    };
 
-    return () => unsubscribe();
+    fetchData();
   }, [user, orderBy, order]);
 
   const handleSort = (property) => {
