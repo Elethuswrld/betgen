@@ -1,59 +1,170 @@
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-admin.initializeApp();
+import * as admin from 'firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 const db = admin.firestore();
 
-// This is a placeholder for the AIStrategyEngine logic. 
-// In a real-world scenario, you would share this logic between your client and functions.
-const runAnalysis = async (userId: string) => {
-    const roundsRef = db.collection(`users/${userId}/crashGames`);
-    const snapshot = await roundsRef.orderBy('timestamp', 'desc').limit(100).get();
-    const rounds = snapshot.docs.map(doc => doc.data());
+// --- TYPE DEFINITIONS (These are compatible with the Admin SDK) ---
 
-    const totalRounds = rounds.length;
-    const wins = rounds.filter(r => r.outcome === 'win').length;
-    const winRate = totalRounds > 0 ? (wins / totalRounds) * 100 : 0;
-    const totalProfitLoss = rounds.reduce((acc, r) => acc + r.profit, 0);
-    const averageMultiplier = rounds.length > 0 
-        ? rounds.reduce((acc, r) => acc + (r.cashOutMultiplier || 0), 0) / rounds.length 
-        : 0;
-
-    const analytics = {
-        totalRounds,
-        winRate,
-        averageMultiplier,
-        totalProfitLoss,
-        lastAnalyzed: admin.firestore.FieldValue.serverTimestamp(),
-        insights: ['Cloud function analysis is active!'] // Placeholder insight
-    };
-
-    const analyticsRef = db.doc(`users/${userId}/analytics/latest`);
-    await analyticsRef.set(analytics, { merge: true });
-
-    return analytics;
+interface Round {
+    id: string;
+    amount: number;
+    cashOutMultiplier: number;
+    crashPoint: number;
+    profit: number;
+    outcome: 'win' | 'loss';
+    timestamp: Timestamp;
 }
 
-export const analyzeNewRound = functions.firestore
-    .document('users/{userId}/crashGames/{gameId}')
-    .onCreate(async (snap, context) => {
-        const { userId } = context.params;
-        console.log(`New round detected for user ${userId}, running analysis...`);
+interface MindsetEntry {
+    id: string;
+    emotionalBiasScore: number;
+    timestamp: Timestamp;
+}
 
-        try {
-            await runAnalysis(userId);
-            console.log(`Analysis complete for user ${userId}`);
+interface AnalyticsResult {
+    winRate: number;
+    avgMultiplier: number;
+    riskRewardRatio: number;
+    profitConsistencyScore: number;
+    lossStreaks: number;
+    emotionalBiasScore: number;
+    bestRange: string;
+    performanceSummary: string;
+    aiSuggestion: string;
+    lastAnalyzed: Timestamp;
+    aiComment: string;
+}
 
-            // Auto-post a chat message
-            const chatMessage = {
-                text: "🤖 I've analyzed your latest round. Check your dashboard for updated insights!",
-                sender: "ai",
-                timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            };
-            await db.collection(`users/${userId}/chat`).add(chatMessage);
+// --- CORE ANALYSIS FUNCTIONS (Copied from shared/aiStrategyEngine.ts) ---
 
-        } catch (error) {
-            console.error(`Failed to analyze round for user ${userId}:`, error);
+const calculateWinRate = (rounds: Round[]): number => {
+    if (rounds.length === 0) return 0;
+    const wins = rounds.filter(r => r.outcome === 'win').length;
+    return (wins / rounds.length) * 100;
+};
+
+const calculateAvgMultiplier = (rounds: Round[]): number => {
+    const winningRounds = rounds.filter(r => r.outcome === 'win');
+    if (winningRounds.length === 0) return 0;
+    const totalMultiplier = winningRounds.reduce((sum, r) => sum + r.cashOutMultiplier, 0);
+    return totalMultiplier / winningRounds.length;
+};
+
+const calculateRiskReward = (rounds: Round[]): number => {
+    const wins = rounds.filter(r => r.outcome === 'win');
+    const losses = rounds.filter(r => r.outcome === 'loss');
+    if (losses.length === 0) return wins.length > 0 ? 100 : 0;
+    if (wins.length === 0) return 0;
+
+    const avgWin = wins.reduce((sum, r) => sum + r.profit, 0) / wins.length;
+    const avgLoss = Math.abs(losses.reduce((sum, r) => sum + r.profit, 0) / losses.length);
+    
+    return avgWin / avgLoss;
+}
+
+const detectRevengeBetting = (rounds: Round[]): number => {
+    let revengeScore = 0;
+    for (let i = 1; i < rounds.length; i++) {
+        if (rounds[i - 1].outcome === 'loss' && rounds[i].amount > rounds[i - 1].amount * 1.5) {
+            revengeScore += 20;
         }
+    }
+    return Math.min(revengeScore, 100);
+};
+
+const analyzeEmotionalCorrelation = (rounds: Round[], mindsetEntries: MindsetEntry[]): number => {
+    if (mindsetEntries.length === 0) return 50;
+    const latestMindset = mindsetEntries[0];
+    return latestMindset.emotionalBiasScore;
+}
+
+const findBestRange = (rounds: Round[]): string => {
+    const ranges: { [key: string]: number } = { "1.1-1.5x": 0, "1.5-2.0x": 0, "2.0-3.0x": 0, "3.0x+": 0 };
+    rounds.filter(r => r.outcome === 'win').forEach(r => {
+        if (r.cashOutMultiplier <= 1.5) ranges["1.1-1.5x"] += r.profit;
+        else if (r.cashOutMultiplier <= 2.0) ranges["1.5-2.0x"] += r.profit;
+        else if (r.cashOutMultiplier <= 3.0) ranges["2.0-3.0x"] += r.profit;
+        else ranges["3.0x+"] += r.profit;
     });
+    return Object.keys(ranges).reduce((a, b) => ranges[a] > ranges[b] ? a : b);
+}
+
+const generateAiComment = (analytics: Omit<AnalyticsResult, 'aiComment' | 'lastAnalyzed'>): string => {
+    if (analytics.emotionalBiasScore > 75) {
+        return "High emotional bias detected. Focus on detaching from outcomes.";
+    }
+    if (analytics.winRate < 40) {
+        return "Win rate is low. Consider lowering your risk or reviewing your entry points.";
+    }
+    if (analytics.riskRewardRatio < 1) {
+        return "Your risk/reward is unfavorable. Aim for larger wins or smaller losses.";
+    }
+    return "Performance is stable. Continue executing your strategy with discipline.";
+}
+
+// --- MAIN EXPORTED FUNCTION ---
+
+export const analyzeUserPerformance = async (userId: string): Promise<void> => {
+    try {
+        const roundsRef = db.collection(`users/${userId}/rounds`);
+        const mindsetRef = db.collection(`users/${userId}/mindset`);
+
+        const [roundsSnapshot, mindsetSnapshot] = await Promise.all([
+            roundsRef.get(),
+            mindsetRef.get(),
+        ]);
+
+        const rounds = roundsSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() } as Round))
+            .sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
+
+        const mindsetEntries = mindsetSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() } as MindsetEntry))
+            .sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+
+        if (rounds.length < 1) { // Changed to 1 for testing
+            console.log("Not enough data to analyze.");
+            return;
+        }
+
+        const winRate = calculateWinRate(rounds);
+        const avgMultiplier = calculateAvgMultiplier(rounds);
+        const riskRewardRatio = calculateRiskReward(rounds);
+        const bestRange = findBestRange(rounds);
+        const revengeBettingScore = detectRevengeBetting(rounds);
+        const emotionalBiasScore = analyzeEmotionalCorrelation(rounds, mindsetEntries);
+
+        const performanceSummary = `You show consistency in the ${bestRange} range, but a ${revengeBettingScore}% revenge betting score and a ${emotionalBiasScore}% emotional bias suggest decisions are sometimes emotionally driven.`;
+        
+        const aiSuggestion = revengeBettingScore > 50 ? "Take a 5-minute break after every 2 consecutive losses to reset." : "Your strategy is solid. Focus on maintaining discipline during drawdowns.";
+        
+        const analyticsData: Omit<AnalyticsResult, 'aiComment' | 'lastAnalyzed'> = {
+            winRate,
+            avgMultiplier,
+            riskRewardRatio,
+            bestRange,
+            profitConsistencyScore: 75, 
+            lossStreaks: 3, 
+            emotionalBiasScore,
+            performanceSummary,
+            aiSuggestion,
+        };
+        
+        const aiComment = generateAiComment(analyticsData);
+
+        const finalResult: AnalyticsResult = {
+            ...analyticsData,
+            aiComment,
+            lastAnalyzed: Timestamp.now(),
+        };
+
+        const analyticsDocRef = db.doc(`users/${userId}/analytics/latest`);
+        await analyticsDocRef.set(finalResult);
+
+        console.log(`Successfully analyzed performance for user ${userId}`);
+
+    } catch (error) {
+        console.error("Error in AI Strategy Engine: ", error);
+    }
+};

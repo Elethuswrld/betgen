@@ -1,150 +1,240 @@
 
-import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Grid, Tooltip, Box, CircularProgress } from '@mui/material';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, onSnapshot, Timestamp } from 'firebase/firestore';
-import { db, auth } from '../firebase';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import AIStrategyEngine from '../services/aiStrategyEngine';
+import React, { useMemo } from 'react';
+import {
+  Paper,
+  Typography,
+  Grid,
+  Tooltip,
+  Box,
+  CircularProgress,
+} from '@mui/material';
+import { Timestamp } from 'firebase/firestore';
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  Legend,
+  Cell,
+} from 'recharts';
+import useAuth from '../hooks/useAuth';
+import useAnalytics from '../hooks/useAnalytics';
 
 // --- TYPE DEFINITIONS ---
-interface CrashGame {
-  outcome: 'win' | 'loss';
-  game: string;
-  cashOutMultiplier: number;
-  profit: number;
-  timestamp: any;
-}
 
-interface Analytics {
-    totalRounds: number;
-    winRate: number;
-    averageMultiplier: number;
-    totalProfitLoss: number;
-    bestStreak: number;
-    worstStreak: number;
-    emotionalBiasScore: number;
-    lastAnalyzed: Timestamp;
-    insights: string[];
+interface Round {
+  id?: string;
+  profit: number;
+  timestamp: Timestamp;
+  outcome: 'win' | 'loss';
 }
 
 interface PerformanceDashboardProps {
-  crashGames: CrashGame[];
+  rounds: Round[];
 }
 
-const COLORS = { win: '#4caf50', loss: '#f44336' };
-
 // --- STYLED COMPONENT FOR AI CARDS ---
-const AiCard = ({ title, value, unit, tooltip, glowColor = '#9c27b0' }: any) => (
-    <Tooltip title={tooltip}>
-        <Paper sx={{
-            p: 2,
-            textAlign: 'center',
-            bgcolor: '#2c1a3e',
-            color: 'white',
-            borderRadius: '12px',
-            border: `1px solid ${glowColor}`,
-            boxShadow: `0 0 15px ${glowColor}`,
-            height: '100%',
-            animation: 'fadeIn 0.5s ease-in-out',
-            '@keyframes fadeIn': {
-                '0%': { opacity: 0, transform: 'translateY(10px)' },
-                '100%': { opacity: 1, transform: 'translateY(0)' },
-            },
-        }}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{value}<Typography component="span" variant="h6">{unit}</Typography></Typography>
-            <Typography variant="body2" sx={{ color: '#c7c7c7' }}>{title}</Typography>
-        </Paper>
-    </Tooltip>
+
+const AiInsightCard = ({
+  title,
+  value,
+  unit,
+  tooltip,
+  glowColor = '#00FFC6',
+}: {
+  title: string;
+  value: string;
+  unit?: string;
+  tooltip: string;
+  glowColor?: string;
+}) => (
+  <Tooltip title={tooltip} placement="top">
+    <Paper
+      sx={{
+        p: 2,
+        textAlign: 'center',
+        color: 'white',
+        borderRadius: '16px',
+        height: '100%',
+        background: 'rgba(27, 27, 39, 0.7)', // Glassmorphism background
+        backdropFilter: 'blur(10px)',
+        border: `1px solid ${glowColor}`,
+        animation: 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-5px) scale(1.03)',
+          boxShadow: `0 0 25px 3px ${glowColor}`,
+        },
+      }}
+    >
+      <Typography variant="h4" className="font-orbitron font-bold">
+        {value}
+        {unit && (
+          <Typography component="span" variant="h6" sx={{ ml: 0.5 }}>
+            {unit}
+          </Typography>
+        )}
+      </Typography>
+      <Typography variant="body2" sx={{ color: '#c7c7c7' }}>
+        {title}
+      </Typography>
+    </Paper>
+  </Tooltip>
 );
 
+// --- MAIN COMPONENT ---
 
-const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ crashGames }) => {
-    const [user] = useAuthState(auth);
-    const [analytics, setAnalytics] = useState<Analytics | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [optimalRange, setOptimalRange] = useState({ range: 'N/A', confidence: 0 });
+const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ rounds }) => {
+  const { user } = useAuth();
+  const { analytics, loading } = useAnalytics(user);
 
-    useEffect(() => {
-        if (user) {
-            const engine = new AIStrategyEngine(user.uid);
-            setOptimalRange(engine.predictOptimalMultiplier()); // Set initial prediction
-
-            const unsubscribe = onSnapshot(doc(db, 'users', user.uid, 'analytics', 'latest'), (doc) => {
-                if (doc.exists()) {
-                    setAnalytics(doc.data() as Analytics);
-                    // Optionally re-predict on new analysis
-                    setOptimalRange(engine.predictOptimalMultiplier());
-                }
-                setLoading(false);
-            });
-            return () => unsubscribe();
-        }
-    }, [user]);
-
-    // Existing chart logic...
-    const totalGames = crashGames.length;
-    const wins = crashGames.filter(g => g.outcome === 'win').length;
-    const losses = totalGames - wins;
-    const winLossData = [{ name: 'Wins', value: wins }, { name: 'Losses', value: losses }];
-    const profitData = crashGames.slice().reverse().map((game, index) => ({ name: `G${index + 1}`, profit: game.profit }));
-
-    // --- CALCULATIONS FOR NEW CARDS ---
-    const winRate = analytics ? analytics.winRate.toFixed(1) : '0.0';
-    const expectedValue = analytics ? ((analytics.winRate / 100) * (analytics.averageMultiplier - 1) - ((1 - analytics.winRate / 100) * 1)).toFixed(3) : '0.000';
-    const aiRecommendation = analytics && analytics.insights.length > 0 ? analytics.insights[0] : 'Log more games to get insights.';
+  const bankrollData = useMemo(() => {
+    return rounds
+      .slice()
+      .reverse()
+      .reduce((acc, round, index) => {
+        const previousBankroll = acc.length > 0 ? acc[acc.length - 1].bankroll : 0;
+        acc.push({
+          name: `R${index + 1}`,
+          profit: round.profit,
+          bankroll: previousBankroll + round.profit,
+        });
+        return acc;
+      }, [] as { name: string; profit: number; bankroll: number }[]);
+  }, [rounds]);
 
   return (
-    <Paper elevation={3} sx={{ p: 3, mt: 4, bgcolor: '#1a1a1a', color: 'white', border: '1px solid #444', borderRadius: '16px' }}>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>AI Performance Dashboard</Typography>
-      
+    <Paper
+      elevation={12}
+      sx={{
+        p: { xs: 2, md: 3 },
+        mt: 4,
+        color: 'white',
+        border: '1px solid #4B00FF',
+        borderRadius: '20px',
+        background: 'rgba(10, 10, 20, 0.5)',
+        backdropFilter: 'blur(5px)',
+      }}
+    >
+      <Typography variant="h5" gutterBottom className="font-orbitron font-bold">
+        AI Performance Dashboard
+      </Typography>
+
       {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}><CircularProgress color="secondary" /></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress sx={{ color: '#00FFC6' }} />
+        </Box>
+      ) : !analytics ? (
+        <Typography sx={{ textAlign: 'center', my: 4, color: '#c7c7c7' }}>
+          Log your first round to see AI insights.
+        </Typography>
       ) : (
-        <Grid container spacing={3} sx={{ mt: 2, mb: 4 }}>
-            <Grid item xs={12} sm={6} md={3}><AiCard title="Win Rate" value={winRate} unit="%" tooltip="Percentage of games won" /></Grid>
-            <Grid item xs={12} sm={6} md={3}><AiCard title="Optimal Range" value={optimalRange.range} unit="" tooltip={`Predicted best multiplier range with ${optimalRange.confidence}% confidence`} glowColor="#00cyan"/></Grid>
-            <Grid item xs={12} sm={6} md={3}><AiCard title="Expected Value (EV)" value={expectedValue} unit="%" tooltip="Average return on every 1 unit bet" glowColor="#00ff00" /></Grid>
-            <Grid item xs={12} sm={6} md={3}>
-                 <Tooltip title="A suggestion from your AI Coach">
-                    <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#2c1a3e', color: 'white', borderRadius: '12px', border: `1px solid #ffff00`, boxShadow: `0 0 15px #ffff00`, height: '100%', animation: 'fadeIn 0.5s ease-in-out' }}>
-                        <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>💡 AI Recommendation</Typography>
-                        <Typography variant="body2" sx={{ color: '#c7c7c7' }}>{aiRecommendation}</Typography>
-                    </Paper>
-                </Tooltip>
+        <Box>
+          <Grid container spacing={2} sx={{ mt: 2, mb: 4 }}>
+            <Grid item xs={6} sm={6} md={3}>
+              <AiInsightCard
+                title="Win Rate"
+                value={analytics.winRate.toFixed(1)}
+                unit="%"
+                tooltip="Percentage of rounds won"
+                glowColor="#00FFC6"
+              />
             </Grid>
-        </Grid>
+            <Grid item xs={6} sm={6} md={3}>
+              <AiInsightCard
+                title="Avg. Multiplier"
+                value={analytics.avgMultiplier.toFixed(2)}
+                unit="x"
+                tooltip="Your average winning multiplier"
+                glowColor="#00C4FF"
+              />
+            </Grid>
+            <Grid item xs={6} sm={6} md={3}>
+              <AiInsightCard
+                title="Risk/Reward"
+                value={analytics.riskRewardRatio.toFixed(2)}
+                unit=""
+                tooltip="Ratio of average win to average loss"
+                glowColor="#FFD700"
+              />
+            </Grid>
+            <Grid item xs={6} sm={6} md={3}>
+              <AiInsightCard
+                title="Best Range"
+                value={analytics.bestRange}
+                unit="x"
+                tooltip="The multiplier range where you are most profitable"
+                glowColor="#FF6B00"
+              />
+            </Grid>
+          </Grid>
+          <Tooltip title={analytics.performanceSummary} placement="top">
+            <Paper
+              sx={{
+                p: 2,
+                mb: 4,
+                textAlign: 'center',
+                color: 'white',
+                borderRadius: '16px',
+                height: '100%',
+                background: 'linear-gradient(135deg, rgba(75, 0, 255, 0.3), rgba(0, 255, 198, 0.2))',
+                border: `1px solid #4B00FF`,
+                boxShadow: `0 0 20px 0px #4B00FF`,
+              }}
+            >
+              <Typography variant="body1" className="font-orbitron font-bold mb-1">
+                &#x1F4A1; AI Suggestion
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#e0e0e0' }}>
+                {analytics.aiSuggestion}
+              </Typography>
+            </Paper>
+          </Tooltip>
+        </Box>
       )}
 
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 4, mb: 2 }}>Game History Analysis</Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Typography variant="subtitle1" sx={{ mb: 2, textAlign: 'center' }}>Win/Loss Distribution</Typography>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie data={winLossData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
-                {winLossData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[entry.name.toLowerCase() as keyof typeof COLORS]} />
-                ))}
-              </Pie>
-              <RechartsTooltip formatter={(value) => `${value} (${((value as number / totalGames) * 100).toFixed(1)}%)`} />
-            </PieChart>
-          </ResponsiveContainer>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Typography variant="subtitle1" sx={{ mb: 2, textAlign: 'center' }}>Profit Over Time</Typography>
-            <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={profitData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-                    <XAxis dataKey="name" stroke="white" />
-                    <YAxis stroke="white" />
-                    <RechartsTooltip contentStyle={{ backgroundColor: '#3a3a3a', color: 'white' }} formatter={(value: number) => `$${value.toFixed(2)}`}/>
-                    <Line type="monotone" dataKey="profit" stroke="#8884d8" strokeWidth={2} dot={{ r: 4 }} />
-                </LineChart>
-            </ResponsiveContainer>
-        </Grid>
-      </Grid>
+      <Typography variant="h6" className="font-orbitron font-bold mt-4 mb-2">
+        Bankroll Progression
+      </Typography>
+      <ResponsiveContainer width="100%" height={300}>
+        <ComposedChart data={bankrollData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(75, 0, 255, 0.3)" />
+          <XAxis dataKey="name" stroke="#c7c7c7" />
+          <YAxis yAxisId="left" stroke="#00FFC6" />
+          <YAxis yAxisId="right" orientation="right" stroke="#FFD700" />
+          <RechartsTooltip
+            contentStyle={{
+              backgroundColor: 'rgba(27, 27, 39, 0.9)',
+              backdropFilter: 'blur(5px)',
+              border: '1px solid #00FFC6',
+              color: 'white',
+            }}
+            formatter={(value: number, name: string) =>
+              name === 'Profit' ? `$${value.toFixed(2)}` : `$${value.toFixed(2)}`
+            }
+          />
+          <Legend wrapperStyle={{ color: 'white' }} />
+          <Bar yAxisId="right" dataKey="profit" name="Profit">
+            {bankrollData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.profit >= 0 ? '#00C4FF' : '#FF6B00'} />
+            ))}
+          </Bar>
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey="bankroll"
+            name="Bankroll"
+            stroke="#00FFC6"
+            strokeWidth={2}
+            dot={false}
+            activeDot={{ r: 8, style: { fill: '#fff', stroke: '#00FFC6' } }}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
     </Paper>
   );
 };

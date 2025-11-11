@@ -113,7 +113,7 @@ const EditGameModal: React.FC<{
     );
 };
 
-const CrashGameHistory: React.FC<CrashGameHistoryProps> = ({ crashGames, onDeleteGame, onUpdateGame }) => {
+const CrashGameHistory: React.FC<CrashGameHistoryProps> = ({ crashGames = [], onDeleteGame, onUpdateGame }) => {
   const [editingGame, setEditingGame] = useState<CrashGame | null>(null);
 
   const handleUpdate = (updatedGame: Partial<CrashGame>) => {

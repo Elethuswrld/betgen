@@ -23,11 +23,11 @@ const Dashboard: React.FC<DashboardProps> = ({ bets }) => {
   const totalWagered = bets.reduce((acc, bet) => acc + bet.amount, 0);
   const totalProfit = bets.reduce((acc, bet) => acc + bet.profit, 0);
 
-  const StatCard = ({ title, value, isCurrency = false, colorClass = 'text-white' }) => (
+  const StatCard = ({ title, value, isCurrency = false, colorClass = 'text-white' }: { title: string, value: string | number, isCurrency?: boolean, colorClass?: string }) => (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
       <h3 className="text-lg font-semibold text-gray-400 mb-2">{title}</h3>
       <p className={`text-4xl font-bold ${colorClass}`}>
-        {isCurrency ? `$${value.toFixed(2)}` : value}
+        {isCurrency && typeof value === 'number' ? `$${value.toFixed(2)}` : value}
       </p>
     </div>
   );

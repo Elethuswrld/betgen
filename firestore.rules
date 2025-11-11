@@ -1,25 +1,21 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // This single rule grants a user access to their own document
-    // and all subcollections (like rounds, mindset, etc.) within it.
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Allow users to create their own user document
     match /users/{userId} {
-        allow create: if request.auth != null && request.auth.uid == userId;
-    }
+      allow read, write: if request.auth != null && request.auth.uid == userId;
 
-    // Explicitly deny access to the old, unsecured collections.
-    match /rounds/{roundId} {
-      allow read, write: if false; 
-    }
-    match /settings/{settingId} {
-        allow read, write: if false;
+      match /crashGames/{gameId} {
+        allow read, write, create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /mindset/{entryId} {
+        allow read, write, create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /analytics/latest {
+          allow read: if request.auth != null && request.auth.uid == userId;
+          allow write: if false; // Disallow client-side writes
+      }
     }
   }
 }

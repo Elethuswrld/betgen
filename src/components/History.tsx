@@ -1,14 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
-import { collection, getDocs, query, orderBy as orderByFb } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy as orderByFb, Timestamp } from 'firebase/firestore';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, TablePagination, Typography } from '@mui/material';
 import { format } from 'date-fns';
 
+interface Round {
+  id: string;
+  timestamp: Timestamp;
+  gameName: string;
+  betAmount: number;
+  actualCashout: number;
+  profit: number;
+}
+
 const History = () => {
-  const [rounds, setRounds] = useState([]);
-  const [orderBy, setOrderBy] = useState('timestamp');
-  const [order, setOrder] = useState('desc');
+  const [rounds, setRounds] = useState<Round[]>([]);
+  const [orderBy, setOrderBy] = useState<keyof Round>('timestamp');
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const user = auth.currentUser;
@@ -23,24 +32,24 @@ const History = () => {
         );
 
         const querySnapshot = await getDocs(q);
-        const roundsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const roundsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Round));
         setRounds(roundsData);
     };
 
     fetchData();
   }, [user, orderBy, order]);
 
-  const handleSort = (property) => {
+  const handleSort = (property: keyof Round) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };

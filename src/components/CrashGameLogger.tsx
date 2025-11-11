@@ -4,7 +4,7 @@ import { Button, TextField, Box, Typography, Paper, Slider, Select, MenuItem, In
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import AIStrategyEngine from '../services/aiStrategyEngine';
+import { analyzeUserPerformance } from '../services/aiStrategyEngine';
 
 // --- TYPE DEFINITIONS ---
 interface CrashGame {
@@ -36,21 +36,16 @@ const CrashGameLogger: React.FC<CrashGameLoggerProps> = ({ onAddCrashGame }) => 
 
     const triggerPostRoundAnalysis = async () => {
         if (!user) return;
-        const engine = new AIStrategyEngine(user.uid);
+        await analyzeUserPerformance(user.uid);
         
-        // Run analysis and get the top insight
-        const analytics = await engine.runFullAnalysis();
-        const topInsight = analytics.insights.length > 0 ? analytics.insights[0] : null;
-
-        // Post a message to the chat
-        if (topInsight) {
-            const chatMessage = `💡 Quick insight after your last round: ${topInsight}`;
-            await addDoc(collection(db, `users/${user.uid}/chat`), { 
-                text: chatMessage, 
-                sender: 'ai', 
-                timestamp: serverTimestamp() 
-            });
-        }
+        // The analysis result is now stored in Firestore, so we don't need to get a top insight here.
+        // We can, however, still post a generic message to the chat.
+        const chatMessage = `💡 Quick insight after your last round has been generated. Check the analytics dashboard!`;
+        await addDoc(collection(db, `users/${user.uid}/chat`), { 
+            text: chatMessage, 
+            sender: 'ai', 
+            timestamp: serverTimestamp() 
+        });
     };
 
   const handleSubmit = async (e: React.FormEvent) => {

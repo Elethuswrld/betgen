@@ -1,25 +1,22 @@
-
 {
-  "name": "functions",
-  "description": "Cloud Functions for Firebase",
+  "name": "betgen-functions",
+  "version": "1.0.0",
+  "private": true,
+  "main": "lib/index.js",
   "scripts": {
+    "build": "tsc",
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
-  "engines": {
-    "node": "18"
-  },
-  "main": "lib/index.js",
   "dependencies": {
-    "firebase-admin": "^11.11.1",
-    "firebase-functions": "^4.9.0"
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "firebase-functions-test": "^3.2.0"
-  },
-  "private": true
+    "typescript": "^5.0.0",
+    "firebase-functions-test": "^3.1.0"
+  }
 }

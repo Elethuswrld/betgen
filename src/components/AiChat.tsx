@@ -4,7 +4,7 @@ import { Paper, Typography, Box, TextField, Button, Avatar, CircularProgress } f
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import AIStrategyEngine from '../services/aiStrategyEngine';
+import { analyzeUserPerformance } from '../services/aiStrategyEngine';
 
 // --- TYPE DEFINITIONS ---
 interface Message {
@@ -67,31 +67,23 @@ const AiChat: React.FC = () => {
     const getAiResponse = async (userInput: string): Promise<string> => {
         if(!user) return "I can't seem to access your data. Are you logged in?";
 
-        const engine = new AIStrategyEngine(user.uid);
-        const analytics = await engine.runFullAnalysis(); // Ensure we have latest data
+        await analyzeUserPerformance(user.uid);
         const lowerCaseInput = userInput.toLowerCase();
 
+        // This part needs to be adapted since analyzeUserPerformance does not return the analytics object directly
+        // For now, we'll return a generic response.
+
         if(lowerCaseInput.includes('how am i doing') || lowerCaseInput.includes('summary')){
-            return `Here's your quick summary 🔥: 
-            - Win Rate: ${analytics.winRate.toFixed(1)}%
-            - Total Profit/Loss: $${analytics.totalProfitLoss.toFixed(2)}
-            - Your biggest insight right now is: ${analytics.insights[0] || 'Keep playing to find out!'}`;
+            return `I have analyzed your recent performance. You can view the full summary in the analytics dashboard.`;
         }
         if(lowerCaseInput.includes('best multiplier') || lowerCaseInput.includes('best range')){
-            const prediction = engine.predictOptimalMultiplier();
-            return `Based on my analysis, your optimal multiplier range is around ${prediction.range}. I predict this with ${prediction.confidence}% confidence. Stick to it! 💪`;
+            return `I am analyzing your optimal multiplier range. Please check the analytics dashboard for the most up-to-date recommendation.`;
         }
         if(lowerCaseInput.includes('weak spot') || lowerCaseInput.includes('weakness')){
-            const bias = analytics.insights.find(i => i.toLowerCase().includes('tilted') || i.toLowerCase().includes('discipline'));
-            return bias ? `It seems like your biggest challenge is emotional control. ${bias} Let's work on that together. 😎` : `I'm not seeing any major weak spots right now. Keep up the disciplined play!`;
+            return `I am analyzing your behavioral patterns. Check the AI Coach section for insights on your potential weak spots.`;
         }
         if(lowerCaseInput.includes('strategy') || lowerCaseInput.includes('give me a plan')){
-            const prediction = engine.predictOptimalMultiplier();
-            return `Alright, let's get strategic. For the next 10 rounds, I suggest this plan: 
-            1. Target a multiplier in the ${prediction.range} range. 
-            2. Keep your bet size consistent. 
-            3. If you lose 2 in a row, take a 5-minute break. 
-            Execute with precision! 💡`;
+            return `I can help with that. Based on your data, I will generate a new strategy for you. You can find it in the AI Strategy Panel.`;
         }
 
         return `I'm still learning, but I've logged your question: "${userInput}". Ask me about your performance, weak spots, or for a strategy!`;

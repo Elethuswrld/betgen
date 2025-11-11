@@ -1,24 +1,20 @@
 
 import { useEffect, useState } from "react";
 import { Grid, Typography } from "@mui/material";
-import KpiCards from "../components/dashboard/KpiCards";
-import BankrollChart from "../components/dashboard/BankrollChart";
-import PerformanceChart from "../components/dashboard/PerformanceChart";
-import RecentBetsTable from "../components/dashboard/RecentBetsTable";
-import MotivationalBanner from "../components/dashboard/MotivationalBanner";
-import RoundLogger from "../components/dashboard/RoundLogger";
-import BalanceManager from "../components/dashboard/BalanceManager";
+import KpiCards from "../components/KpiCards";
+import BankrollChart from "../components/BankrollChart";
+import PerformanceChart from "../components/PerformanceChart";
+import RecentBetsTable from "../components/RecentBetsTable";
+import MotivationalBanner from "../components/MotivationalBanner";
+import RoundLogger from "../components/RoundLogger";
+import BalanceManager from "../components/BalanceManager";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../firebase";
 
 const Home = () => {
-  const [userId, setUserId] = useState<string | null>(null);
+  const [user] = useAuthState(auth);
 
-  useEffect(() => {
-    // In a real application, you would fetch the logged-in user's ID
-    // For now, we'll use a placeholder
-    setUserId("placeholderUserId");
-  }, []);
-
-  if (!userId) {
+  if (!user) {
     return <Typography>Loading...</Typography>;
   }
 
@@ -28,22 +24,22 @@ const Home = () => {
         <MotivationalBanner />
       </Grid>
       <Grid item xs={12}>
-        <KpiCards userId={userId} />
+        <KpiCards userId={user.uid} />
       </Grid>
       <Grid item xs={12} md={8}>
-        <BankrollChart userId={userId} />
+        <BankrollChart userId={user.uid} />
       </Grid>
       <Grid item xs={12} md={4}>
-        <RoundLogger userId={userId} />
+        <RoundLogger userId={user.uid} />
       </Grid>
       <Grid item xs={12} md={6}>
-        <PerformanceChart userId={userId} />
+        <PerformanceChart userId={user.uid} />
       </Grid>
       <Grid item xs={12} md={6}>
-        <BalanceManager userId={userId} />
+        <BalanceManager userId={user.uid} />
       </Grid>
       <Grid item xs={12}>
-        <RecentBetsTable userId={userId} />
+        <RecentBetsTable userId={user.uid} />
       </Grid>
     </Grid>
   );
