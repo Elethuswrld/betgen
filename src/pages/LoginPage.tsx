@@ -17,7 +17,7 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { Person, Lock } from '@mui/icons-material';
+import { Person, Lock, Google } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme({
@@ -201,8 +201,19 @@ const LoginPage: React.FC = () => {
             <Button
               fullWidth
               onClick={handleGoogleSignIn}
-              variant="text"
-              sx={{ color: 'white', mb: 2 }}
+              variant="outlined"
+              startIcon={<Google />}
+              sx={{
+                borderRadius: '50px',
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                color: 'white',
+                padding: '12px',
+                mb: 2,
+                '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
             >
               Sign In with Google
             </Button>
