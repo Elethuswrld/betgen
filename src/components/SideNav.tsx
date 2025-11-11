@@ -44,7 +44,7 @@ const SideNav: React.FC = () => {
             </Box>
             <List sx={{ flexGrow: 1 }}>
                 {menuItems.map((item) => (
-                    <ListItem button component={Link} to={item.path} key={item.text} sx={{
+                    <ListItem component={Link} to={item.path} key={item.text} sx={{
                         color: location.pathname === item.path ? '#9c27b0' : 'white',
                         margin: '8px 16px',
                         borderRadius: '8px',
@@ -60,7 +60,7 @@ const SideNav: React.FC = () => {
             </List>
             <Divider sx={{ bgcolor: '#9c27b0' }} />
             <List>
-                <ListItem button onClick={handleLogout} sx={{ color: 'white', margin: '8px 16px', borderRadius: '8px', '&:hover': { backgroundColor: 'rgba(255, 82, 82, 0.2)' } }}>
+                <ListItem onClick={handleLogout} sx={{ color: 'white', margin: '8px 16px', borderRadius: '8px', '&:hover': { backgroundColor: 'rgba(255, 82, 82, 0.2)' } }}>
                     <ListItemIcon><Logout sx={{ color: 'white' }} /></ListItemIcon>
                     <ListItemText primary="Logout" />
                 </ListItem>

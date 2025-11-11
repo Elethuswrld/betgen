@@ -1,32 +1,60 @@
+
 import React, { useState } from 'react';
-import { 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword 
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
 } from 'firebase/auth';
 import { auth } from '../firebase';
-import { 
-  Button, 
-  TextField, 
-  Container, 
-  Typography, 
-  Box, 
-  AppBar, 
-  Toolbar, 
-  Paper 
+import {
+  Button,
+  Typography,
+  Box,
+  InputAdornment,
+  IconButton,
+  OutlinedInput,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
+import { Person, Lock } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#9c27b0',
+      main: '#ffffff',
     },
     background: {
-      default: '#121212',
-      paper: '#1e1e1e',
+      default: '#0F1923',
+      paper: '#0F1923',
+    },
+    text: {
+      primary: '#ffffff',
+    },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: '50px',
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#ffffff',
+          },
+        },
+        notchedOutline: {
+          borderColor: 'rgba(255, 255, 255, 0.3)',
+        },
+        input: {
+          color: '#ffffff',
+          padding: '18.5px 14px',
+        },
+      },
     },
   },
 });
@@ -67,70 +95,127 @@ const LoginPage: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            BetGen
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #0F1923 0%, #152230 100%)',
+        }}
+      >
+        <Box
+          sx={{
+            p: 4,
+            maxWidth: 400,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
+            {isSignUp ? 'CREATE ACCOUNT' : 'USER LOGIN'}
           </Typography>
-        </Toolbar>
-      </AppBar>
-      <Container component="main" maxWidth="xs">
-        <Paper elevation={6} sx={{ mt: 8, p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography component="h1" variant="h5">
-            {isSignUp ? 'Sign Up' : 'Sign In'}
-          </Typography>
-          <Box component="form" onSubmit={handleEmailPasswordSubmit} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+          <Box component="form" onSubmit={handleEmailPasswordSubmit} sx={{ mt: 3, width: '100%' }}>
+            <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
+                <InputLabel htmlFor="email-input">Username</InputLabel>
+                <OutlinedInput
+                    id="email-input"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    startAdornment={
+                        <InputAdornment position="start">
+                        <IconButton edge="start" sx={{
+                            backgroundColor: 'white',
+                            color: 'black',
+                            '&:hover': {
+                                backgroundColor: '#f0f0f0'
+                            },
+                            width: 50,
+                            height: 50,
+                            marginLeft: -1.7
+                        }}>
+                            <Person />
+                        </IconButton>
+                        </InputAdornment>
+                    }
+                    label="Username"
+                />
+            </FormControl>
+
+            <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
+                <InputLabel htmlFor="password-input">Password</InputLabel>
+                <OutlinedInput
+                    id="password-input"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    endAdornment={
+                        <InputAdornment position="end">
+                        <IconButton edge="end" sx={{
+                            backgroundColor: 'white',
+                            color: 'black',
+                            '&:hover': {
+                                backgroundColor: '#f0f0f0'
+                            },
+                            width: 50,
+                            height: 50,
+                            marginRight: -1.7
+                        }}>
+                            <Lock />
+                        </IconButton>
+                        </InputAdornment>
+                    }
+                    label="Password"
+                />
+            </FormControl>
+
             {error && (
-              <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+              <Typography color="error" variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
                 {error}
               </Typography>
             )}
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ 
+                mt: 2, 
+                mb: 2, 
+                borderRadius: '50px', 
+                color: 'black', 
+                backgroundColor: 'white',
+                fontWeight: 'bold',
+                padding: '12px',
+                '&:hover': {
+                    backgroundColor: '#f0f0f0'
+                }
+            }}
             >
-              {isSignUp ? 'Sign Up' : 'Sign In'}
+              {isSignUp ? 'SIGN UP' : 'LOGIN'}
             </Button>
+
             <Button
               fullWidth
               onClick={handleGoogleSignIn}
-              variant="outlined"
-              sx={{ mb: 2 }}
+              variant="text"
+              sx={{ color: 'white', mb: 2 }}
             >
               Sign In with Google
             </Button>
-            <Button fullWidth onClick={() => setIsSignUp(!isSignUp)}>
-              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+            <Button
+              fullWidth
+              onClick={() => setIsSignUp(!isSignUp)}
+              sx={{ color: 'white' }}
+            >
+              {isSignUp ? 'Already have an account? Sign In' : "Don\'t have an account? Sign Up"}
             </Button>
           </Box>
-        </Paper>
-      </Container>
+        </Box>
+      </Box>
     </ThemeProvider>
   );
 };
