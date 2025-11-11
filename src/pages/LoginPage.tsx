@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
 import {
-  GoogleAuthProvider,
-  signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword
 } from 'firebase/auth';
@@ -11,13 +9,10 @@ import {
   Button,
   Typography,
   Box,
-  InputAdornment,
-  IconButton,
-  OutlinedInput,
-  FormControl,
-  InputLabel,
+  TextField,
+  Avatar
 } from '@mui/material';
-import { Person, Lock, Google } from '@mui/icons-material';
+import { Person, Lock } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme({
@@ -53,6 +48,7 @@ const theme = createTheme({
         input: {
           color: '#ffffff',
           padding: '18.5px 14px',
+          textAlign: 'center' 
         },
       },
     },
@@ -64,16 +60,6 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      setError("Failed to sign in with Google.");
-      console.error("Error signing in with Google: ", error);
-    }
-  };
 
   const handleEmailPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,59 +104,33 @@ const LoginPage: React.FC = () => {
             {isSignUp ? 'CREATE ACCOUNT' : 'USER LOGIN'}
           </Typography>
           <Box component="form" onSubmit={handleEmailPasswordSubmit} sx={{ mt: 3, width: '100%' }}>
-            <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
-                <InputLabel htmlFor="email-input">Username</InputLabel>
-                <OutlinedInput
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Avatar sx={{ bgcolor: 'white', color: 'black', mr: 1.5}}>
+                    <Person />
+                </Avatar>
+                <TextField
                     id="email-input"
                     type="email"
+                    placeholder='Username'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    startAdornment={
-                        <InputAdornment position="start">
-                        <IconButton edge="start" sx={{
-                            backgroundColor: 'white',
-                            color: 'black',
-                            '&:hover': {
-                                backgroundColor: '#f0f0f0'
-                            },
-                            width: 50,
-                            height: 50,
-                            marginLeft: -1.7
-                        }}>
-                            <Person />
-                        </IconButton>
-                        </InputAdornment>
-                    }
-                    label="Username"
+                    fullWidth
                 />
-            </FormControl>
+            </Box>
 
-            <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
-                <InputLabel htmlFor="password-input">Password</InputLabel>
-                <OutlinedInput
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <TextField
                     id="password-input"
                     type="password"
+                    placeholder='Password'
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    endAdornment={
-                        <InputAdornment position="end">
-                        <IconButton edge="end" sx={{
-                            backgroundColor: 'white',
-                            color: 'black',
-                            '&:hover': {
-                                backgroundColor: '#f0f0f0'
-                            },
-                            width: 50,
-                            height: 50,
-                            marginRight: -1.7
-                        }}>
-                            <Lock />
-                        </IconButton>
-                        </InputAdornment>
-                    }
-                    label="Password"
+                    fullWidth
                 />
-            </FormControl>
+                <Avatar sx={{ bgcolor: 'white', color: 'black', ml: 1.5}}>
+                    <Lock />
+                </Avatar>
+            </Box>
 
             {error && (
               <Typography color="error" variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
@@ -200,29 +160,10 @@ const LoginPage: React.FC = () => {
 
             <Button
               fullWidth
-              onClick={handleGoogleSignIn}
-              variant="outlined"
-              startIcon={<Google />}
-              sx={{
-                borderRadius: '50px',
-                borderColor: 'rgba(255, 255, 255, 0.3)',
-                color: 'white',
-                padding: '12px',
-                mb: 2,
-                '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                }
-              }}
-            >
-              Sign In with Google
-            </Button>
-            <Button
-              fullWidth
               onClick={() => setIsSignUp(!isSignUp)}
               sx={{ color: 'white' }}
             >
-              {isSignUp ? 'Already have an account? Sign In' : "Don\'t have an account? Sign Up"}
+              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
             </Button>
           </Box>
         </Box>
